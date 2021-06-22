@@ -35,6 +35,7 @@ export const ToDoApp = () => {
 	}, [todos])
 
 	const handleCompleted = (e)=> {
+		//Este codigo apunta al hermano del padre del elemento target HTML :V
 		const parentText = e.target.parentElement.previousSibling.innerText
 
 		todos.forEach(value => {
@@ -45,23 +46,28 @@ export const ToDoApp = () => {
 		})
 	}
 
-	const handleEdit = (e)=> {
+	const handleEdit = async (e)=> {
 		const parentText = e.target.parentElement.previousSibling.innerText
 		
-		Swal.fire({
-			title: 'Error!',
-			text: 'Do you want to continue',
-			icon: 'error',
-			confirmButtonText: 'Cool'
+		const edited = await Swal.fire({
+			title: 'Edit',
+			input: 'text',
+			inputValue: parentText,
+			showCancelButton: true,
+			inputValidator: (value) => {
+			if (!value) {
+				return 'You need to write something!'
+			}}
 		})
 
-		// todos.forEach(value => {
-		// 	if (value.task === parentText) {
-		// 		value.completed = !value.completed;
-		// 		setTodos([...todos])
-		// 	} 
-		// })
-
+		if (edited.isConfirmed){
+			todos.forEach(value => {
+				if (value.task === parentText) {
+					value.task = edited.value;
+					setTodos([...todos])
+				} 
+			})
+		}	
 	}
 
 	const handleReset = () => {
