@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { ToDo } from './components/ToDo';
 import { uid } from 'uid';
+import Swal from 'sweetalert2'
 
 export const ToDoApp = () => {
-	const inputValue = document.getElementById('input--value');
+	const [inputValue, setInputValue] = useState("")
 	const [todos, setTodos] = useState(JSON.parse(localStorage.getItem("todos")) || []);
+
+	const handleInputChange = (e)=> {
+		setInputValue(e.target.value)
+	}
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -15,7 +20,8 @@ export const ToDoApp = () => {
 			...todos,
 			{
 				id: uid(),
-				task: inputValue.value,
+				task: inputValue,
+				completed: false
 			},
 		]);
 		
@@ -27,6 +33,36 @@ export const ToDoApp = () => {
 		const storageTodos = JSON.stringify(todos);
 	    localStorage.setItem('todos', storageTodos);
 	}, [todos])
+
+	const handleCompleted = (e)=> {
+		const parentText = e.target.parentElement.previousSibling.innerText
+
+		todos.forEach(value => {
+			if (value.task === parentText) {
+				value.completed = !value.completed;
+				setTodos([...todos])
+			} 
+		})
+	}
+
+	const handleEdit = (e)=> {
+		const parentText = e.target.parentElement.previousSibling.innerText
+		
+		Swal.fire({
+			title: 'Error!',
+			text: 'Do you want to continue',
+			icon: 'error',
+			confirmButtonText: 'Cool'
+		})
+
+		// todos.forEach(value => {
+		// 	if (value.task === parentText) {
+		// 		value.completed = !value.completed;
+		// 		setTodos([...todos])
+		// 	} 
+		// })
+
+	}
 
 	const handleReset = () => {
 		setTodos([]);
@@ -43,12 +79,10 @@ export const ToDoApp = () => {
 			</header>
 			<form className="main--wrapper" id="main--form" onSubmit={handleSubmit}>
 				<div className="wrapper--top">
-					<h3 onClick={handleReset} className="bi bi-arrow-repeat btn btn-outline-dark">
-						|Reset
-					</h3>
+					<h3 onClick={handleReset} className="bi bi-arrow-repeat btn btn-outline-dark"> Reset</h3>
 				</div>
 				<div className="main--content">
-					<ToDo todoValues={todos} />
+					<ToDo todoValues={todos} handleCompleted={handleCompleted} handleEdit={handleEdit}/>
 				</div>
 			</form>
 			<section className="section--input">
@@ -57,6 +91,7 @@ export const ToDoApp = () => {
 					type="text"
 					form="main--form"
 					placeholder="Add New Task..."
+					onChange={handleInputChange}
 				/>
 				<button
 					type="submit"

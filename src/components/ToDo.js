@@ -1,20 +1,18 @@
 import React from 'react';
 
-export const ToDo = ({ todoValues }) => {
-
-	console.log(todoValues);
+export const ToDo = ({ todoValues, handleCompleted, handleEdit, handleDelete }) => {
 
 	return (
 		<>
 		{
 			todoValues.map(todo => {
 
-			return <div className="content--todo" key={todo.id}>
+			return <div className="content--todo animate__animated animate__lightSpeedInLeft" key={todo.id}>
 						<p>{todo.task}</p>
 						<div>
-							<i className="bi bi-check2-circle btn btn-outline-primary"></i>
-							<i className="bi bi-pencil btn btn-outline-dark"></i>
-							<i className="bi bi-trash btn btn-outline-danger"></i>
+							<i className="bi bi-check2-circle btn btn-outline-primary" onClick={handleCompleted}></i>
+							<i className="bi bi-pencil btn btn-outline-dark" onClick={handleEdit}></i>
+							<i className="bi bi-trash btn btn-outline-danger" onClick={handleDelete}></i>
 						</div>
 					</div>
 			})
