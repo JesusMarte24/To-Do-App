@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ToDo } from './components/ToDo';
 import { uid } from 'uid';
 import Swal from 'sweetalert2'
+import moment from 'moment';
 
 export const ToDoApp = () => {
 	const [inputValue, setInputValue] = useState("")
@@ -25,6 +26,7 @@ export const ToDoApp = () => {
 			},
 		]);
 		
+		document.getElementById("input--value").value = ""
 	};
 
 	//Esto funciona porque cada vez que se actualizan los "todos" las dependencias de
@@ -36,8 +38,7 @@ export const ToDoApp = () => {
 
 	const handleCompleted = (e)=> {
 		//Este codigo apunta al hermano del padre del elemento target HTML :V
-		const parentText = e.target.parentElement.previousSibling.innerText
-
+		const parentText = e.target.parentElement.previousSibling.innerText;
 		todos.forEach(value => {
 			if (value.task === parentText) {
 				value.completed = !value.completed;
@@ -70,25 +71,54 @@ export const ToDoApp = () => {
 		}	
 	}
 
-	const handleReset = () => {
-		setTodos([]);
+	const handleReset = async () => {
+
+		const resetConfirmation = await Swal.fire({
+			title: "You're about to delete everything, is it ok?",
+			input: 'radio',
+			inputOptions: {
+				"yes": "YES",
+				"no": "NO"
+			},
+			inputValidator: (value) => {
+			if (!value) {
+				return 'You need to choose something!'
+			}
+			}
+		})
+
+		if (resetConfirmation.value === "yes"){
+			setTodos([]);
 		localStorage.clear();
+		}
 	};
 
+	const handleDelete = (e)=> {
+		const parentText = e.target.parentElement.previousSibling.innerText
+		
+		const myArr = todos.filter(value =>  (value.task !== parentText) ? value : null)
+
+		setTodos([...myArr])
+	}
 	
 	return (
 		<>
 			<header className="main--header">
 				<h1>To Do List</h1>
-				<h2>Monday</h2>
-				<span>06/21/2021</span>
+				<h2>{moment().format('dddd')}</h2>
+				<span>{moment().format("MMM Do YY")}</span>
 			</header>
 			<form className="main--wrapper" id="main--form" onSubmit={handleSubmit}>
 				<div className="wrapper--top">
 					<h3 onClick={handleReset} className="bi bi-arrow-repeat btn btn-outline-dark"> Reset</h3>
 				</div>
 				<div className="main--content">
-					<ToDo todoValues={todos} handleCompleted={handleCompleted} handleEdit={handleEdit}/>
+					<ToDo 
+					todoValues={todos}
+					handleCompleted={handleCompleted} 
+					handleEdit={handleEdit}
+					handleDelete={handleDelete}
+					/>
 				</div>
 			</form>
 			<section className="section--input">
@@ -97,6 +127,7 @@ export const ToDoApp = () => {
 					type="text"
 					form="main--form"
 					placeholder="Add New Task..."
+					autoComplete="off"
 					onChange={handleInputChange}
 				/>
 				<button
